@@ -1,0 +1,44 @@
+<!doctype html>
+<!--
+  FFXIV Duty Briefings — the one HTML page the whole app lives in.
+  The app swaps what is shown inside <main id="view"> as you move between
+  pages, so this file stays tiny. All the work happens in app.js.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- viewport-fit=cover lets the app use the full screen, including round corners and camera cut-outs -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Offline boss-by-boss strategy for FFXIV duties.">
+  <!-- Colour of the phone's status bar while the app is open (light and dark mode) -->
+  <meta name="theme-color" content="#eef0f5" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0d1020" media="(prefers-color-scheme: dark)">
+  <title>Duty Briefings</title>
+  <!-- The manifest tells Android this website can be installed as an app -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Top bar: back button, page title, and a shortcut back to search -->
+  <header class="topbar">
+    <button type="button" id="back-btn" class="icon-btn" aria-label="Back" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+    </button>
+    <h1 id="page-title">Duty Briefings</h1>
+    <button type="button" id="search-btn" class="icon-btn" aria-label="Search" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+    </button>
+  </header>
+
+  <!-- Every page (home, filter options, duty lists, duty briefings) is drawn in here -->
+  <main id="view"></main>
+
+  <!-- Small message that appears when a newer version of the app has been downloaded -->
+  <button type="button" id="update-toast" class="toast" hidden>App updated. Tap to reload.</button>
+
+  <!-- data.js must load first: it defines window.FF, the list of duties app.js reads -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
