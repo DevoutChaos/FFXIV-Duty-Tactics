@@ -1,60 +1,75 @@
 # FFXIV Duty Briefings: phone app
 
-An offline app for your Galaxy Z Flip 5 with boss-by-boss strategy for 232 duties and 800 bosses (Patch 7.56).
-It needs no log-in, sends nothing anywhere, and works in airplane mode once it's installed.
+An offline app designed for my Galaxy Z Flip 5 with boss-by-boss strategy for 232 duties and 800 bosses (Patch 7.56).
+Fan-made tool, not affiliated with or endorsed by Square Enix. FINAL FANTASY XIV © SQUARE ENIX. Strategy summaries compiled from Icy Veins, Consolegameswiki, Thonky, Eorzean Tavern, Conquest Capped and others.
 
-## What's in this folder
+- **Works offline.** Once installed, it opens without internet, even in airplane mode.
+- **No account or log-in.**
+- **Nothing is collected.** Your search history stays on your phone.
 
-| File | What it does |
-|---|---|
-| `index.html` | The single page the app lives in. |
-| `styles.css` | Colours, layout, dark mode, and the compact cover-screen layout. |
-| `app.js` | Every page, the search, and search history. Each function has a comment explaining it. |
-| `data.js` | All the duty and boss information, copied from your Duty Briefings page. |
-| `sw.js` | The "service worker". It saves the app on your phone so it works offline. |
-| `manifest.webmanifest` | Tells Android the app's name, icon and colours so it can be installed. |
-| `icons/` | The home-screen icon. |
+**Open the app:** https://devoutchaos.github.io/FFXIV-Duty-Tactics/
 
-## Getting it onto your phone (one time, about 10 minutes)
+## Install it on your phone
 
-An installable web app has to be opened once from a real web address. GitHub Pages hosts it for free.
+### Android (Chrome)
+1. Open **https://devoutchaos.github.io/FFXIV-Duty-Tactics/** in **Chrome**.
+2. Tap the **⋮** menu (top right), then **Add to Home screen**, then **Install**.
+3. Open the app once from its new icon while you're online. After that it works offline.
 
-1. Create a free account at **github.com**.
-2. Click **+** (top right), then **New repository**. Name it `duty-briefings`, set it to **Public**, and click **Create repository**.
-   GitHub Pages is only free for public repositories, so anyone with the link could see the app. Nothing personal is in it.
-3. On the new repository page, click **uploading an existing file**. Drag in **everything inside this folder**, including the `icons` folder. Click **Commit changes**.
-4. Go to **Settings → Pages**. Under *Branch*, choose **main** and **/ (root)**, then click **Save**.
-5. Wait 1–2 minutes. The page will show your address, for example `https://yourname.github.io/duty-briefings/`.
-6. On your Flip 5, open that address in **Chrome**. Tap **⋮ → Add to Home screen → Install**.
-7. Open the app once from the new icon while you're online. After that it works offline.
+On Samsung Internet, tap **☰**, then **Add page to**, then **Home screen**.
 
-### Using it on the cover screen (Flex Window)
+### iPhone (Safari)
+1. Open **https://devoutchaos.github.io/FFXIV-Duty-Tactics/** in **Safari**.
+2. Tap the **Share** button (the square with an arrow), then **Add to Home Screen**, then **Add**.
+3. Open the app once from its new icon while you're online. After that it works offline.
 
-Samsung only lets certain apps run on the cover screen. To add this one:
+## How to use it
+
+**Browse:** the home page has five buttons:
+- **Duty Type**: dungeons, trials, raids, alliance raids, Variant & Criterion, Ultimates, exploration zones
+- **Duty Roulette**: everything a roulette can give you, such as Leveling or Trials
+- **Expansion**: A Realm Reborn through Dawntrail
+- **Exploration Zones**: Eureka, Bozja, Zadnor, Occult Crescent and their raids
+- **Limited Job**: Blue Mage and Beastmaster content
+
+In exploration zones and limited-job content, each encounter is a collapsible entry. Tap an encounter's name to open or close it.
+
+Pick an option to see its duties, then tap a duty to open its briefing.
+
+**Search:** type a duty, boss or ability name (e.g. *Valigarmanda*, *Skyruin*). You can also type a mechanic such as *tower*, *gaze* or *knockback*.
+Matching words are highlighted. Tapping an ability takes you straight to that boss.
+
+**On a briefing:**
+- Use the difficulty buttons (*All*, *Normal*, *Extreme*…) to show one version of the fight.
+- Use **Jump to** to skip to a boss.
+- Tap a mechanic tag at the bottom of a card to find every boss with that mechanic.
+
+**Recent searches:** tap the search box, then the **clock** button, to see your last 10 searches. **Clear history** deletes them.
+A search is saved when you press Search/Enter, tap a result, or tap a mechanic tag.
+
+The app follows your phone's light or dark mode setting.
+
+## Galaxy Z Flip cover screen
+
+The app has a compact layout for the Flip's small cover screen. It also uses this layout when the phone is turned sideways.
+Samsung only lets certain apps run on the cover screen, so to add it:
 
 1. Install **Good Lock** from the Galaxy Store, then install its **MultiStar** module.
-2. In MultiStar, open **I ♡ Galaxy Foldable → Launcher Widget**, and turn on **Duty Briefings**.
-3. Add the *Launcher* widget to the cover screen in **Settings → Cover screen → Widgets**.
+2. In MultiStar, open **I ♡ Galaxy Foldable**, then **Launcher Widget**, and turn on **Duty Briefings**.
+3. Add the **Launcher** widget in **Settings**, then **Cover screen**, then **Widgets**.
 
-When the screen is short (the cover screen, or the phone turned sideways), the app automatically switches to a compact layout.
+## Updates
 
-## Search history
+The app updates itself. When new content is added, open the app while you're online.
+A message saying **"App updated. Tap to reload."** will appear. Tap it to get the new version. Your search history is kept.
 
-- A search is saved when you press **Search/Enter** on the keyboard, tap a result, or tap a mechanic tag.
-  It is not saved on every letter you type, so half-typed words don't fill up the list.
-- Only the last **10** searches are kept, with the newest first. A repeated search moves to the top instead of appearing twice.
-- To see them, tap the search box, then tap the **clock** button. **Clear history** deletes them.
-- History is stored only in the app's storage on your phone. Uninstalling the app or clearing Chrome's site data deletes it.
+## Privacy
 
-## Updating the app later (e.g. when new duties are added)
+The app has no accounts, adverts or tracking. Your last 10 searches are stored only in the app's storage on your phone.
+They are deleted if you uninstall the app or clear its site data.
 
-1. Replace `data.js` with the new version. Keep the comment block at the top.
-2. Open `sw.js` and change `CACHE_VERSION = 'duty-briefings-v1'` to `v2` (then `v3` next time, and so on).
-   **If you skip this step, phones will keep showing the old version.**
-3. Upload the changed files to your GitHub repository, overwriting the old ones.
-4. Open the app while online. It downloads the update and shows **"App updated. Tap to reload."**
+## Troubleshooting
 
-## Testing on your PC before uploading (optional)
-
-Opening `index.html` by double-clicking it mostly works, but offline mode and history won't, because browsers restrict files opened directly.
-To test properly, use a small local web server, such as the *Live Server* extension in VS Code.
+- **No "Install" or "Add to Home screen" option:** make sure you're using Chrome (Android) or Safari (iPhone), not a browser inside another app such as Discord or Facebook.
+- **Doesn't open offline:** open it once while online after installing, and wait a few seconds so it can save itself.
+- **Update not showing:** close the app fully and reopen it while online.

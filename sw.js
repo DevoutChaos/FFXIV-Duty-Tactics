@@ -7,7 +7,7 @@
    WHEN YOU UPDATE THE APP: change CACHE_VERSION below (e.g. v1 → v2).
    That tells phones there's a new version to download.
    ============================================================ */
-const CACHE_VERSION = 'duty-briefings-v1';
+const CACHE_VERSION = 'duty-briefings-v1.1';
 
 // Every file the app needs. If you add a file to the app, add it here too.
 const APP_FILES = [

@@ -78,6 +78,7 @@ const ICONS = {
   type: '<svg viewBox="0 0 24 24"><path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-6h6v6"/></svg>',
   rl: '<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-14 5.3"/><path d="M4 12a8 8 0 0 1 14-5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg>',
   exp: '<svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M8 7h7"/></svg>',
+  ez: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg>',
   lj: '<svg viewBox="0 0 24 24"><path d="M3 6c3 1 6 1 9-1 3 2 6 2 9 1 0 7-3 12-9 13C6 18 3 13 3 6z"/><path d="M8 11h2M14 11h2"/></svg>',
   search: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>',
   clock: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
@@ -101,12 +102,24 @@ const FILTERS = {
     title: 'Expansion', hint: 'A Realm Reborn to Dawntrail', options: EXPANSIONS, groupBy: 'type',
     matches: function (duty, value) { return duty.exp === value; }
   },
+  ez: {
+    title: 'Exploration Zones', hint: 'Eureka, Bozja and Occult Crescent', options: EXPANSIONS, groupBy: 'exp',
+    showDutyNames: true,
+    matches: function (duty, value) { return duty.type === 'Exploration' && duty.exp === value; }
+  },
   lj: {
     title: 'Limited Job', hint: 'Blue Mage and Beastmaster content', options: LIMITED_JOBS, groupBy: 'exp',
+    showDutyNames: true,
     matches: function (duty, value) { return duty.lj === value; }
   }
 };
-const FILTER_ORDER = ['type', 'rl', 'exp', 'lj'];
+// showDutyNames (above) lists each choice's duties under it on the options page,
+// e.g. "Eureka Anemos · Eureka Pagos…" under Stormblood, so you know what's inside.
+const FILTER_ORDER = ['type', 'rl', 'exp', 'ez', 'lj'];
+
+// Duty types whose encounters are shown as collapsible entries, because these
+// zones have many encounters and the page would otherwise be very long.
+const COLLAPSIBLE_TYPES = ['Exploration', 'Limited Job'];
 
 /* ---------- 2. SMALL HELPER FUNCTIONS ---------- */
 
@@ -606,12 +619,15 @@ function renderBrowse(key) {
   setTopBar(filter.title, false);
   const list = el('div', 'list');
   filter.options.forEach(function (option) {
-    const count = DATA.filter(function (duty) { return filter.matches(duty, option); }).length;
-    if (!count) return; // skip choices with nothing in them yet
+    const duties = DATA.filter(function (duty) { return filter.matches(duty, option); });
+    if (!duties.length) return; // skip choices with nothing in them yet
     const row = el('a', 'row');
     row.href = '#/list/' + key + '/' + encodeURIComponent(option);
     row.append(el('span', 'row-title', key === 'type' ? (TYPE_HEADINGS[option] || option + 's') : option),
-      el('span', 'row-count', plural(count, 'duty', 'duties')));
+      el('span', 'row-count', plural(duties.length, 'duty', 'duties')));
+    if (filter.showDutyNames) {
+      row.append(el('span', 'row-sub', duties.map(function (duty) { return duty.inst; }).join(' · ')));
+    }
     list.append(row);
   });
   view.append(list);
@@ -625,7 +641,10 @@ function renderList(key, value) {
   const filter = FILTERS[key];
   if (!filter) return renderNotFound();
   const duties = DATA.filter(function (duty) { return filter.matches(duty, value); }).sort(byLevel);
-  setTopBar(key === 'type' ? (TYPE_HEADINGS[value] || value + 's') : value, false);
+  let title = value;
+  if (key === 'type') title = TYPE_HEADINGS[value] || value + 's';
+  if (key === 'ez') title = value + ' exploration';
+  setTopBar(title, false);
   if (!duties.length) {
     view.append(el('p', 'empty', 'No duties here yet.'));
     return;
@@ -678,6 +697,8 @@ function renderDuty(id, bossIndex, diff) {
   const terms = searchTerms(currentQuery);
   const diffs = dutyDifficulties(duty);
   let chosenDiff = diffs.indexOf(diff) >= 0 ? diff : '';
+  // Exploration zones and limited-job content show each encounter as a collapsible entry.
+  const collapsible = COLLAPSIBLE_TYPES.indexOf(duty.type) >= 0;
 
   // --- heading and details ---
   const head = el('section', 'duty-head');
@@ -718,7 +739,9 @@ function renderDuty(id, bossIndex, diff) {
       const chip = el('button', 'chip', boss.n);
       chip.type = 'button';
       chip.addEventListener('click', function () {
-        document.getElementById('boss-' + i).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const card = document.getElementById('boss-' + i);
+        if (collapsible) card.open = true; // a collapsed encounter is opened before jumping to it
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
       jumpButtons.push(chip);
       row.append(chip);
@@ -728,7 +751,10 @@ function renderDuty(id, bossIndex, diff) {
 
   // --- boss cards ---
   const cards = duty.bosses.map(function (boss, i) {
-    const card = bossCard(duty, boss, i, terms);
+    const card = bossCard(duty, boss, i, terms, collapsible);
+    // Collapsible entries start closed, except the one you came here for
+    // (from a search result) and any that contain your search words.
+    if (collapsible) card.open = i === bossIndex || (terms.length > 0 && !!card.querySelector('mark'));
     view.append(card);
     return card;
   });
@@ -756,18 +782,34 @@ function renderDuty(id, bossIndex, diff) {
 }
 
 /** Builds one boss card: name, "key" reminder, a block of abilities per difficulty, and mechanic tags.
-    Any search words are highlighted so you can spot why it matched. */
-function bossCard(duty, boss, index, terms) {
-  const card = el('article', 'boss');
+    Any search words are highlighted so you can spot why it matched.
+    When collapsible is true the card can be folded away: only its name shows
+    until you tap it, which keeps long exploration-zone pages short. */
+function bossCard(duty, boss, index, terms, collapsible) {
+  const card = el(collapsible ? 'details' : 'article', 'boss');
   card.id = 'boss-' + index;
   const title = el('h3');
   title.append(highlighted(boss.n, terms));
-  card.append(title);
-  if (boss.sub) card.append(el('span', 'sub', boss.sub));
+
+  // "body" is where the rest of the card goes. For a collapsible card the name sits in the
+  // always-visible <summary> line, and everything else goes in a body that folds away.
+  let body = card;
+  if (collapsible) {
+    const summary = el('summary');
+    const heading = el('span', 'boss-sum');
+    heading.append(title);
+    if (boss.sub) heading.append(el('span', 'sub', boss.sub));
+    summary.append(el('span', 'chev'), heading);
+    body = el('div', 'boss-body');
+    card.append(summary, body);
+  } else {
+    card.append(title);
+    if (boss.sub) card.append(el('span', 'sub', boss.sub));
+  }
   if (boss.key) {
     const key = el('div', 'key');
     key.append(el('b', null, 'Key'), el('span', null, boss.key));
-    card.append(key);
+    body.append(key);
   }
 
   bossDifficulties(boss).forEach(function (diff) {
@@ -789,7 +831,7 @@ function bossCard(duty, boss, index, terms) {
       ul.append(li);
     });
     blk.append(ul);
-    card.append(blk);
+    body.append(blk);
   });
 
   const tags = bossTags(boss);
@@ -805,7 +847,7 @@ function bossCard(duty, boss, index, terms) {
       });
       tagRow.append(btn);
     });
-    card.append(tagRow);
+    body.append(tagRow);
   }
   return card;
 }
